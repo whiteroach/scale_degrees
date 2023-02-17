@@ -1,6 +1,6 @@
 # scale_degrees
 ---
-An in terminal application design to build and solidify scale degrees knowledge.
+A terminal application design to build and solidify scale degrees knowledge.
 
 ### Description:
 The application will prompts the user with 15 questions randomly generated.
