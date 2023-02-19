@@ -11,28 +11,20 @@ use requestty::{Answer, Question};
 pub enum ScaleType{
     Major(Key),
     Minor(Key)
+} 
+impl ScaleType {
+    fn select_scale() -> Self {
+        let mut rng = rand::thread_rng(); 
+        let rng_n:i32= rng.gen();
+        match &rng_n {
+            &rng_n if &rng_n % 2 == 0 => Self::Major(Key::select_key()),
+            _=> Self::Minor(Key::select_key()),
+        }
+    }
 }
-// pub enum ScaleType<'a> {
-//     Major(Box<& 'a str>),
-//     Minor(Box<& 'a str>)
-// }
-// impl Distribution<Spinner> for Standard {
-//     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Spinner {
-//         // match rng.gen_range(0, 3) { // rand 0.5, 0.6, 0.7
-//         match rng.gen_range(0..=2) { // rand 0.8
-//             0 => Spinner::One,
-//             1 => Spinner::Two,
-//             _ => Spinner::Three,
-//         }
-//     }
-// }
-//
-// fn main() {
-//     let spinner: Spinner = rand::random();
-//     println!("{:?}", spinner);
-// }
+
 #[derive(Debug)]
-pub enum Key {
+ pub enum Key {
     C,
     G,
     D,
@@ -46,6 +38,48 @@ pub enum Key {
     Bb,
     F
 }
+impl Key {
+    fn new(key_name:&str) -> Option<Self> {
+        match key_name {
+            "C" => Some(Self::C),
+            "D" => Some(Self::D),
+            "A" => Some(Self::A),
+            "E" => Some(Self::E),
+            "B" => Some(Self::B),
+            "Gb" => Some(Self::Gb),
+            "Db" => Some(Self::Db),
+            "Ab" => Some(Self::Ab),
+            "Eb" => Some(Self::Eb),
+            "Bb" => Some(Self::Bb),
+            "F" => Some(Self::F),
+            _ => None
+
+        }
+    }
+    fn select_key() -> Self {
+        let key:Self = rand::random();
+        key
+    }
+    fn compare(&self, answer:&str) -> bool {
+        // answer.to_ascii_uppercase()
+        match self {
+            &Self::C if answer == "C" => true,
+            &Self::D if answer == "D" => true,
+            &Self::A if answer == "A" => true,
+            &Self::E if answer == "E" => true,
+            &Self::B if answer == "B" => true,
+            &Self::Gb if answer == "Gb" => true,
+            &Self::Db if answer == "Db" => true,
+            &Self::Ab if answer == "Ab" => true,
+            &Self::Eb if answer == "Eb" => true,
+            &Self::Bb if answer == "Bb" => true,
+            &Self::F if answer == "F" => true,
+            _ => false
+
+        }
+    }
+}
+    
 impl Distribution<Key> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Key {
         match rng.gen_range(0..=11) {
@@ -64,16 +98,17 @@ impl Distribution<Key> for Standard {
         }
     }
 }
+#[derive(Debug)]
 struct Scale<'a> {
-    scale_type:ScaleType,
+    // scale_type:ScaleType,
     notes:Vec<& 'a str>
 }
 
 impl Scale<'_> {
-   fn new(&self,key:Key, vsc_type:ScaleType)->Self{
+   fn new( vsc_type:ScaleType)->Self{
         Self {
-            scale_type:vsc_type,
-            notes:match self.scale_type {
+            // scale_type:vsc_type,
+            notes:match vsc_type {
                 ScaleType::Major(Key::C) => vec!["C","D","E","F","G","A","B"], 
                 ScaleType::Major(Key::G) => vec!["G","A","B","C","D","E","Gb"],
                 ScaleType::Major(Key::D) => vec!["D","E","Gb","G","A","B","Db"],               
@@ -102,17 +137,6 @@ impl Scale<'_> {
         }
     } 
 }
-
-fn select_scale()->Result<ScaleType> {
-    let mut rng = rand::thread_rng(); 
-    let rng_n:i32= rng.gen();
-    let key:Key = rand::random();
-    match &rng_n {
-        &rng_n if &rng_n % 2 == 0 => Ok(ScaleType::Major(key)),
-        _=>    Ok(ScaleType::Minor(key)),
-    }
-}
-
 
 // use shuffle::shuffler::Shuffler;
 // use shuffle::irs::Irs;
@@ -145,15 +169,42 @@ fn select_scale()->Result<ScaleType> {
 //         &_ => todo!()
 //     }
 // }
-struct Exercise {}
+pub enum ExerciseType {
+    Type_A,
+    Type_B,
+    Type_C,
+    Type_D,
+}
+impl Distribution<ExerciseType> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> ExerciseType {
+        match rng.gen_range(0..=3) {
+            0 => ExerciseType::Type_A,
+            1 => ExerciseType::Type_B,
+            2 => ExerciseType::Type_C,
+            _ => ExerciseType::Type_D,
+        }
+    }
+}
+impl ExerciseType {
+    fn select_exercise_type() -> Self {
+            let ex_type:Self = rand::random();
+            ex_type
+    }
+}
 
+struct Exercise<'a> {
+    ex_type:ExerciseType,
+    question:Question<'a>
+}
 pub fn init() -> requestty::Result<()> {
     // todo!();
     let q = Question::input("test").message("Give me an imput").build();
     let a = requestty::prompt_one(q)?;
-    // eprintln!("{:?}", Keys::Ab(vec!["A".to_string()]));
-
-    eprintln!("{:?}",select_scale()) ;
-
+    // eprintln!("{:?}",a);
+    // eprintln!("{:?}",ScaleType::select_scale()) ;
+    // eprintln!("{:?}",Scale::new(ScaleType::select_scale()));
+    // let k = Key::select_key();
+    // let kk = Key::new("C").unwrap();
+    // eprintln!("{}",kk.compare("C"));
     Ok(())
 }
