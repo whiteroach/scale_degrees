@@ -1,4 +1,5 @@
-use std::io::Result;
+use std::vec;
+use std::{fmt, io::Result};
 
 use rand::seq::SliceRandom;
 use rand::{
@@ -22,6 +23,36 @@ impl ScaleType {
         match &rng_n {
             &rng_n if &rng_n % 2 == 0 => Self::Major(Key::select_key()),
             _ => Self::Minor(Key::select_key()),
+        }
+    }
+}
+impl fmt::Display for ScaleType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+                ScaleType::Major(Key::C) => write!(f,"Major C"),   
+                ScaleType::Major(Key::G) => write!(f,"Major G"), 
+                ScaleType::Major(Key::D) => write!(f,"Major D"),         
+                ScaleType::Major(Key::A) => write!(f,"Major A"),          
+                ScaleType::Major(Key::E) => write!(f,"Major E"),     
+                ScaleType::Major(Key::B) => write!(f,"Major B"),   
+                ScaleType::Major(Key::Gb) => write!(f,"Major Gb"),   
+                ScaleType::Major(Key::Db) => write!(f,"Major Db"),   
+                ScaleType::Major(Key::Ab) => write!(f,"Major Ab"),   
+                ScaleType::Major(Key::Eb) => write!(f,"Major Eb"),   
+                ScaleType::Major(Key::Bb) => write!(f,"Major Bb"),   
+                ScaleType::Major(Key::F) => write!(f,"Major F"),   
+                ScaleType::Minor(Key::C) => write!(f,"Minor C"),   
+                ScaleType::Minor(Key::G) => write!(f,"Minor G"),   
+                ScaleType::Minor(Key::D) => write!(f,"Minor D"),   
+                ScaleType::Minor(Key::A) => write!(f,"Minor A"),   
+                ScaleType::Minor(Key::E) => write!(f,"Minor E"),   
+                ScaleType::Minor(Key::B) => write!(f,"Minor B"),   
+                ScaleType::Minor(Key::Gb) => write!(f,"Minor Gb"),   
+                ScaleType::Minor(Key::Db) => write!(f,"Minor Db"),   
+                ScaleType::Minor(Key::Ab) => write!(f,"Minor Ab"),   
+                ScaleType::Minor(Key::Eb) => write!(f,"Minor Eb"),   
+                ScaleType::Minor(Key::Bb) => write!(f,"Minor Bb"),   
+                ScaleType::Minor(Key::F) => write!(f,"Minor F"),   
         }
     }
 }
@@ -136,7 +167,7 @@ impl Scale<'_> {
                 ScaleType::Minor(Key::F) => vec!["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
             },
         }
-    }
+    } 
     fn scale_shuffle(&mut self) {
         let mut rng = StepRng::new(1, 13);
         let mut irs = Irs::default();
@@ -184,7 +215,12 @@ impl Exercise<'_> {
     }
     //A. What are the notes of {Scale} scale?
     fn generate_ex_a() -> Self {
-        todo!()
+        todo!();
+        let scale = ScaleType::select_scale();
+        let scale_vec = vec![Scale::new(scale),Scale::new(ScaleType::select_scale()),Scale::new(ScaleType::select_scale()),Scale::new(ScaleType::select_scale())];
+        // Question::select("")
+            // .message(format!("What are the notes of the {} scale?", &scale.to_string()))
+            // .choice(text)
     }
     //B. What note is the {Nth} of {Key}?
     fn generate_ex_b() -> Self {
@@ -197,6 +233,16 @@ impl Exercise<'_> {
     //D. {Note}is the {Degree} of what note?
     fn generate_ex_d() -> Self {
         todo!()
+    }
+    fn ex_a_shuffler(scale_vec:Vec<Scale>) -> Vec<String> {
+         todo!();
+        // scale_vec.iter().map(|i| i::scale_shuffle())
+        for i in scale_vec.iter() {
+            i.scale_shuffle();
+            // i.to_string() // need to implement to display to scale, but first need to understand
+            // if make sense make an enum out of Scale
+        };
+    
     }
 }
 pub fn init() -> requestty::Result<()> {
