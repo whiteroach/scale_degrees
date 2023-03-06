@@ -165,50 +165,6 @@ impl Distribution<Key> for Standard {
         }
     }
 }
-// #[derive(Debug)]
-// struct Scale<'a> {
-//     // scale_type:ScaleType,
-//     notes: Vec<&'a str>,
-// }
-// impl Scale<'_> {
-//     fn new(vsc_type: ScaleType) -> Self {
-//         Self {
-//             // scale_type:vsc_type,
-//             notes: match vsc_type {
-//                 ScaleType::Major(Key::C) => vec!["C", "D", "E", "F", "G", "A", "B"],
-//                 ScaleType::Major(Key::G) => vec!["G", "A", "B", "C", "D", "E", "Gb"],
-//                 ScaleType::Major(Key::D) => vec!["D", "E", "Gb", "G", "A", "B", "Db"],
-//                 ScaleType::Major(Key::A) => vec!["A", "B", "Db", "D", "E", "Gb", "Ab"],
-//                 ScaleType::Major(Key::E) => vec!["E", "GB", "Ab", "A", "B", "Db", "Ed"],
-//                 ScaleType::Major(Key::B) => vec!["B", "Db", "Eb", "E", "Gb", "Ab", "Bb"],
-//                 ScaleType::Major(Key::Gb) => vec!["Gb", "Ab", "Bb", "B", "Db", "Eb", "F"],
-//                 ScaleType::Major(Key::Db) => vec!["Db", "Eb", "F", "Gb", "Ab", "Bb", "C"],
-//                 ScaleType::Major(Key::Ab) => vec!["Ab", "Bb", "C", "Db", "Eb", "F", "G"],
-//                 ScaleType::Major(Key::Eb) => vec!["Eb", "F", "G", "Ab", "Bb", "C", "D"],
-//                 ScaleType::Major(Key::Bb) => vec!["Bb", "C", "D", "Eb", "F", "G", "A"],
-//                 ScaleType::Major(Key::F) => vec!["F", "G", "A", "Bb", "C", "D", "E"],
-//                 ScaleType::Minor(Key::C) => vec!["C", "D", "Eb", "F", "G", "Ab", "Bb"],
-//                 ScaleType::Minor(Key::G) => vec!["G", "A", "Bb", "C", "D", "Eb", "F"],
-//                 ScaleType::Minor(Key::D) => vec!["D", "E", "F", "G", "A", "Bb", "C", "D"],
-//                 ScaleType::Minor(Key::A) => vec!["A", "B", "C", "D", "E", "F", "G"],
-//                 ScaleType::Minor(Key::E) => vec!["E", "Gb", "G", "A", "B", "C", "D"],
-//                 ScaleType::Minor(Key::B) => vec!["B", "Db", "D", "E", "Gb", "G", "A"],
-//                 ScaleType::Minor(Key::Gb) => vec!["Gb", "Ab", "A", "B", "Db", "D", "E"],
-//                 ScaleType::Minor(Key::Db) => vec!["Db", "Eb", "E", "Gb", "Ab", "A", "B"],
-//                 ScaleType::Minor(Key::Ab) => vec!["Ab", "Bb", "B", "Db", "Eb", "E", "Gb"],
-//                 ScaleType::Minor(Key::Eb) => vec!["Eb", "F", "Gb", "Ab", "Bb", "Cb", "Dd"],
-//                 ScaleType::Minor(Key::Bb) => vec!["Bb", "C", "Db", "Eb", "F", "Gb", "Ab"],
-//                 ScaleType::Minor(Key::F) => vec!["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
-//              },
-//         }
-//      } 
-//     fn scale_shuffle(&mut self) {
-//         let mut rng = StepRng::new(1, 13);
-//         let mut irs = Irs::default();
-//         irs.shuffle(&mut self.notes, &mut rng).unwrap();
-//      }
-// } 
-
 pub enum ExerciseType {
     A,
     B,
