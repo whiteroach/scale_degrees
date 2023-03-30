@@ -1,22 +1,22 @@
 use std::vec;
-use std::{fmt, io::Result};
+use std::fmt;
 
 use rand::seq::SliceRandom;
 use rand::{
     distributions::{Distribution, Standard},
     rngs::mock::StepRng,
-    thread_rng, Rng,
+ Rng,
 };
-use requestty::{Answer, Question};
+use requestty::{Answer, Question };
 use shuffle::irs::Irs;
 use shuffle::shuffler::Shuffler;
 
 #[derive(Debug)]
-pub enum ScaleType {
+pub enum Scale {
     Major(Key),
     Minor(Key),
 }
-impl ScaleType {
+impl Scale {
     fn select_scale() -> Self {
         let mut rng = rand::thread_rng();
         let rng_n: i32 = rng.gen();
@@ -25,34 +25,71 @@ impl ScaleType {
             _ => Self::Minor(Key::select_key()),
         }
     }
+    // fn get_notes(&self) -> Vec<& 'static str > {
+    fn get_notes(&self) -> Vec<&str > {
+        match self {
+                Scale::Major(Key::C) => vec!["C", "D", "E", "F", "G", "A", "B"],
+                Scale::Major(Key::G) => vec!["G", "A", "B", "C", "D", "E", "Gb"],
+                Scale::Major(Key::D) => vec!["D", "E", "Gb", "G", "A", "B", "Db"],
+                Scale::Major(Key::A) => vec!["A", "B", "Db", "D", "E", "Gb", "Ab"],
+                Scale::Major(Key::E) => vec!["E", "GB", "Ab", "A", "B", "Db", "Ed"],
+                Scale::Major(Key::B) => vec!["B", "Db", "Eb", "E", "Gb", "Ab", "Bb"],
+                Scale::Major(Key::Gb) => vec!["Gb", "Ab", "Bb", "B", "Db", "Eb", "F"],
+                Scale::Major(Key::Db) => vec!["Db", "Eb", "F", "Gb", "Ab", "Bb", "C"],
+                Scale::Major(Key::Ab) => vec!["Ab", "Bb", "C", "Db", "Eb", "F", "G"],
+                Scale::Major(Key::Eb) => vec!["Eb", "F", "G", "Ab", "Bb", "C", "D"],
+                Scale::Major(Key::Bb) => vec!["Bb", "C", "D", "Eb", "F", "G", "A"],
+                Scale::Major(Key::F) => vec!["F", "G", "A", "Bb", "C", "D", "E"],
+                Scale::Minor(Key::C) => vec!["C", "D", "Eb", "F", "G", "Ab", "Bb"],
+                Scale::Minor(Key::G) => vec!["G", "A", "Bb", "C", "D", "Eb", "F"],
+                Scale::Minor(Key::D) => vec!["D", "E", "F", "G", "A", "Bb", "C", "D"],
+                Scale::Minor(Key::A) => vec!["A", "B", "C", "D", "E", "F", "G"],
+                Scale::Minor(Key::E) => vec!["E", "Gb", "G", "A", "B", "C", "D"],
+                Scale::Minor(Key::B) => vec!["B", "Db", "D", "E", "Gb", "G", "A"],
+                Scale::Minor(Key::Gb) => vec!["Gb", "Ab", "A", "B", "Db", "D", "E"],
+                Scale::Minor(Key::Db) => vec!["Db", "Eb", "E", "Gb", "Ab", "A", "B"],
+                Scale::Minor(Key::Ab) => vec!["Ab", "Bb", "B", "Db", "Eb", "E", "Gb"],
+                Scale::Minor(Key::Eb) => vec!["Eb", "F", "Gb", "Ab", "Bb", "Cb", "Dd"],
+                Scale::Minor(Key::Bb) => vec!["Bb", "C", "Db", "Eb", "F", "Gb", "Ab"],
+                Scale::Minor(Key::F) => vec!["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
+        }
+    }
+
+    fn get_shuffled_notes(&self) -> Vec<&str> {
+        let mut rng = StepRng::new(1, 13);
+        let mut irs = Irs::default();
+        let mut notes = self.get_notes();
+        irs.shuffle(&mut notes, &mut rng).unwrap();
+        notes
+    }
 }
-impl fmt::Display for ScaleType {
+impl fmt::Display for Scale {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-                ScaleType::Major(Key::C) => write!(f,"Major C"),   
-                ScaleType::Major(Key::G) => write!(f,"Major G"), 
-                ScaleType::Major(Key::D) => write!(f,"Major D"),         
-                ScaleType::Major(Key::A) => write!(f,"Major A"),          
-                ScaleType::Major(Key::E) => write!(f,"Major E"),     
-                ScaleType::Major(Key::B) => write!(f,"Major B"),   
-                ScaleType::Major(Key::Gb) => write!(f,"Major Gb"),   
-                ScaleType::Major(Key::Db) => write!(f,"Major Db"),   
-                ScaleType::Major(Key::Ab) => write!(f,"Major Ab"),   
-                ScaleType::Major(Key::Eb) => write!(f,"Major Eb"),   
-                ScaleType::Major(Key::Bb) => write!(f,"Major Bb"),   
-                ScaleType::Major(Key::F) => write!(f,"Major F"),   
-                ScaleType::Minor(Key::C) => write!(f,"Minor C"),   
-                ScaleType::Minor(Key::G) => write!(f,"Minor G"),   
-                ScaleType::Minor(Key::D) => write!(f,"Minor D"),   
-                ScaleType::Minor(Key::A) => write!(f,"Minor A"),   
-                ScaleType::Minor(Key::E) => write!(f,"Minor E"),   
-                ScaleType::Minor(Key::B) => write!(f,"Minor B"),   
-                ScaleType::Minor(Key::Gb) => write!(f,"Minor Gb"),   
-                ScaleType::Minor(Key::Db) => write!(f,"Minor Db"),   
-                ScaleType::Minor(Key::Ab) => write!(f,"Minor Ab"),   
-                ScaleType::Minor(Key::Eb) => write!(f,"Minor Eb"),   
-                ScaleType::Minor(Key::Bb) => write!(f,"Minor Bb"),   
-                ScaleType::Minor(Key::F) => write!(f,"Minor F"),   
+                Scale::Major(Key::C) => write!(f,"Major C"),   
+                Scale::Major(Key::G) => write!(f,"Major G"), 
+                Scale::Major(Key::D) => write!(f,"Major D"),         
+                Scale::Major(Key::A) => write!(f,"Major A"),          
+                Scale::Major(Key::E) => write!(f,"Major E"),     
+                Scale::Major(Key::B) => write!(f,"Major B"),   
+                Scale::Major(Key::Gb) => write!(f,"Major Gb"),   
+                Scale::Major(Key::Db) => write!(f,"Major Db"),   
+                Scale::Major(Key::Ab) => write!(f,"Major Ab"),   
+                Scale::Major(Key::Eb) => write!(f,"Major Eb"),   
+                Scale::Major(Key::Bb) => write!(f,"Major Bb"),   
+                Scale::Major(Key::F) => write!(f,"Major F"),   
+                Scale::Minor(Key::C) => write!(f,"Minor C"),   
+                Scale::Minor(Key::G) => write!(f,"Minor G"),   
+                Scale::Minor(Key::D) => write!(f,"Minor D"),   
+                Scale::Minor(Key::A) => write!(f,"Minor A"),   
+                Scale::Minor(Key::E) => write!(f,"Minor E"),   
+                Scale::Minor(Key::B) => write!(f,"Minor B"),   
+                Scale::Minor(Key::Gb) => write!(f,"Minor Gb"),   
+                Scale::Minor(Key::Db) => write!(f,"Minor Db"),   
+                Scale::Minor(Key::Ab) => write!(f,"Minor Ab"),   
+                Scale::Minor(Key::Eb) => write!(f,"Minor Eb"),   
+                Scale::Minor(Key::Bb) => write!(f,"Minor Bb"),   
+                Scale::Minor(Key::F) => write!(f,"Minor F"),   
         }
     }
 }
@@ -130,51 +167,6 @@ impl Distribution<Key> for Standard {
         }
     }
 }
-#[derive(Debug)]
-struct Scale<'a> {
-    // scale_type:ScaleType,
-    notes: Vec<&'a str>,
-}
-
-impl Scale<'_> {
-    fn new(vsc_type: ScaleType) -> Self {
-        Self {
-            // scale_type:vsc_type,
-            notes: match vsc_type {
-                ScaleType::Major(Key::C) => vec!["C", "D", "E", "F", "G", "A", "B"],
-                ScaleType::Major(Key::G) => vec!["G", "A", "B", "C", "D", "E", "Gb"],
-                ScaleType::Major(Key::D) => vec!["D", "E", "Gb", "G", "A", "B", "Db"],
-                ScaleType::Major(Key::A) => vec!["A", "B", "Db", "D", "E", "Gb", "Ab"],
-                ScaleType::Major(Key::E) => vec!["E", "GB", "Ab", "A", "B", "Db", "Ed"],
-                ScaleType::Major(Key::B) => vec!["B", "Db", "Eb", "E", "Gb", "Ab", "Bb"],
-                ScaleType::Major(Key::Gb) => vec!["Gb", "Ab", "Bb", "B", "Db", "Eb", "F"],
-                ScaleType::Major(Key::Db) => vec!["Db", "Eb", "F", "Gb", "Ab", "Bb", "C"],
-                ScaleType::Major(Key::Ab) => vec!["Ab", "Bb", "C", "Db", "Eb", "F", "G"],
-                ScaleType::Major(Key::Eb) => vec!["Eb", "F", "G", "Ab", "Bb", "C", "D"],
-                ScaleType::Major(Key::Bb) => vec!["Bb", "C", "D", "Eb", "F", "G", "A"],
-                ScaleType::Major(Key::F) => vec!["F", "G", "A", "Bb", "C", "D", "E"],
-                ScaleType::Minor(Key::C) => vec!["C", "D", "Eb", "F", "G", "Ab", "Bb"],
-                ScaleType::Minor(Key::G) => vec!["G", "A", "Bb", "C", "D", "Eb", "F"],
-                ScaleType::Minor(Key::D) => vec!["D", "E", "F", "G", "A", "Bb", "C", "D"],
-                ScaleType::Minor(Key::A) => vec!["A", "B", "C", "D", "E", "F", "G"],
-                ScaleType::Minor(Key::E) => vec!["E", "Gb", "G", "A", "B", "C", "D"],
-                ScaleType::Minor(Key::B) => vec!["B", "Db", "D", "E", "Gb", "G", "A"],
-                ScaleType::Minor(Key::Gb) => vec!["Gb", "Ab", "A", "B", "Db", "D", "E"],
-                ScaleType::Minor(Key::Db) => vec!["Db", "Eb", "E", "Gb", "Ab", "A", "B"],
-                ScaleType::Minor(Key::Ab) => vec!["Ab", "Bb", "B", "Db", "Eb", "E", "Gb"],
-                ScaleType::Minor(Key::Eb) => vec!["Eb", "F", "Gb", "Ab", "Bb", "Cb", "Dd"],
-                ScaleType::Minor(Key::Bb) => vec!["Bb", "C", "Db", "Eb", "F", "Gb", "Ab"],
-                ScaleType::Minor(Key::F) => vec!["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
-            },
-        }
-    } 
-    fn scale_shuffle(&mut self) {
-        let mut rng = StepRng::new(1, 13);
-        let mut irs = Irs::default();
-        irs.shuffle(&mut self.notes, &mut rng).unwrap();
-    }
-}
-
 pub enum ExerciseType {
     A,
     B,
@@ -215,12 +207,24 @@ impl Exercise<'_> {
     }
     //A. What are the notes of {Scale} scale?
     fn generate_ex_a() -> Self {
-        todo!();
-        let scale = ScaleType::select_scale();
-        let scale_vec = vec![Scale::new(scale),Scale::new(ScaleType::select_scale()),Scale::new(ScaleType::select_scale()),Scale::new(ScaleType::select_scale())];
-        // Question::select("")
-            // .message(format!("What are the notes of the {} scale?", &scale.to_string()))
-            // .choice(text)
+        let scale = Scale::select_scale();
+        //prep to shufle the choices
+        let mut rng = StepRng::new(1, 13);
+        let mut irs = Irs::default();
+
+        let scale_shuffled = scale.get_shuffled_notes().join(",");
+        let mut scale_vec = vec![scale_shuffled.clone(),Scale::select_scale().get_shuffled_notes().join(","),Scale::select_scale().get_shuffled_notes().join(","),Scale::select_scale().get_shuffled_notes().join(",")];
+        irs.shuffle(&mut scale_vec, &mut rng).unwrap();
+
+        let q =  Question::raw_select("")
+             .message(format!("What are the notes of the {} scale?", &scale.to_string()))
+             .choices(scale_vec)
+             .build();
+
+        Self {
+            question:q,
+            solution:scale_shuffled
+        }
     }
     //B. What note is the {Nth} of {Key}?
     fn generate_ex_b() -> Self {
@@ -237,27 +241,28 @@ impl Exercise<'_> {
     fn ex_a_shuffler(scale_vec:Vec<Scale>) -> Vec<String> {
          todo!();
         // scale_vec.iter().map(|i| i::scale_shuffle())
-        for i in scale_vec.iter() {
-            i.scale_shuffle();
-            // i.to_string() // need to implement to display to scale, but first need to understand
-            // if make sense make an enum out of Scale
-        };
-    
+        // for i in scale_vec.iter() {
+        //     i.scale_shuffle();
+        //     // i.to_string() // need to implement to display to scale, but first need to understand
+        //     // if make sense make an enum out of Scale
+        // };
     }
 }
 pub fn init() -> requestty::Result<()> {
     // todo!();
     let q = Question::input("test").message("Give me an imput").build();
-    let _a = requestty::prompt_one(q)?;
-    // eprintln!("{:?}",a);
-    // eprintln!("{:?}",ScaleType::select_scale()) ;
-    //let mut sc = Scale::new(ScaleType::select_scale());
-    //eprintln!("SC = {:?}",&sc);
-    //sc.scale_shuffle();
-    //eprintln!("SC-schuffled = {:?}",sc);
-    // eprintln!("{:?}",Scale::new(ScaleType::select_scale()));
-    // let k = Key::select_key();
-    // let kk = Key::new("C").unwrap();
-    // eprintln!("{}",kk.compare("C"));
+    // let _a = requestty::prompt_one(q)?;
+    let i = Exercise::new(ExerciseType::A); 
+    let a = requestty::prompt_one(i.question)?;
+    let b = match a {
+        Answer::ListItem(li) => li.text, 
+        _ => "invalid".to_string() 
+    };
+    if b == i.solution {
+        eprintln!("Well done!")
+    } else {
+        eprintln!("Nope!")
+    }
+    eprintln!("{:?}",b);
     Ok(())
 }
