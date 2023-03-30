@@ -1,13 +1,13 @@
 use std::vec;
-use std::{fmt, io::Result};
+use std::fmt;
 
 use rand::seq::SliceRandom;
 use rand::{
     distributions::{Distribution, Standard},
     rngs::mock::StepRng,
-    thread_rng, Rng,
+ Rng,
 };
-use requestty::{Answer, Question};
+use requestty::{Answer, Question };
 use shuffle::irs::Irs;
 use shuffle::shuffler::Shuffler;
 
@@ -25,7 +25,8 @@ impl Scale {
             _ => Self::Minor(Key::select_key()),
         }
     }
-    fn get_notes(&self) -> Vec<& 'static str > {
+    // fn get_notes(&self) -> Vec<& 'static str > {
+    fn get_notes(&self) -> Vec<&str > {
         match self {
                 Scale::Major(Key::C) => vec!["C", "D", "E", "F", "G", "A", "B"],
                 Scale::Major(Key::G) => vec!["G", "A", "B", "C", "D", "E", "Gb"],
@@ -53,7 +54,8 @@ impl Scale {
                 Scale::Minor(Key::F) => vec!["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
         }
     }
-    fn get_shuffled_notes(&self) -> Vec<& 'static str> {
+
+    fn get_shuffled_notes(&self) -> Vec<&str> {
         let mut rng = StepRng::new(1, 13);
         let mut irs = Irs::default();
         let mut notes = self.get_notes();
@@ -205,12 +207,24 @@ impl Exercise<'_> {
     }
     //A. What are the notes of {Scale} scale?
     fn generate_ex_a() -> Self {
-        todo!();
         let scale = Scale::select_scale();
-        // let scale_vec = vec![Scale::new(scale),Scale::new(ScaleType::select_scale()),Scale::new(ScaleType::select_scale()),Scale::new(ScaleType::select_scale())];
-        // Question::select("")
-            // .message(format!("What are the notes of the {} scale?", &scale.to_string()))
-            // .choice(text)
+        //prep to shufle the choices
+        let mut rng = StepRng::new(1, 13);
+        let mut irs = Irs::default();
+
+        let scale_shuffled = scale.get_shuffled_notes().join(",");
+        let mut scale_vec = vec![scale_shuffled.clone(),Scale::select_scale().get_shuffled_notes().join(","),Scale::select_scale().get_shuffled_notes().join(","),Scale::select_scale().get_shuffled_notes().join(",")];
+        irs.shuffle(&mut scale_vec, &mut rng).unwrap();
+
+        let q =  Question::raw_select("")
+             .message(format!("What are the notes of the {} scale?", &scale.to_string()))
+             .choices(scale_vec)
+             .build();
+
+        Self {
+            question:q,
+            solution:scale_shuffled
+        }
     }
     //B. What note is the {Nth} of {Key}?
     fn generate_ex_b() -> Self {
@@ -232,27 +246,23 @@ impl Exercise<'_> {
         //     // i.to_string() // need to implement to display to scale, but first need to understand
         //     // if make sense make an enum out of Scale
         // };
-    
     }
 }
 pub fn init() -> requestty::Result<()> {
     // todo!();
     let q = Question::input("test").message("Give me an imput").build();
-    let _a = requestty::prompt_one(q)?;
-    // eprintln!("{:?}",a);
-    let l = Scale::select_scale();
-    eprintln!("{:?}", &l);
-    eprintln!("{:?}", &l.get_shuffled_notes());
- eprintln!("{:?}", l);
-
-    // eprintln!("{:?}",ScaleType::select_scale()) ;
-    //let mut sc = Scale::new(ScaleType::select_scale());
-    //eprintln!("SC = {:?}",&sc);
-    //sc.scale_shuffle();
-    //eprintln!("SC-schuffled = {:?}",sc);
-    // eprintln!("{:?}",Scale::new(ScaleType::select_scale()));
-    // let k = Key::select_key();
-    // let kk = Key::new("C").unwrap();
-    // eprintln!("{}",kk.compare("C"));
+    // let _a = requestty::prompt_one(q)?;
+    let i = Exercise::new(ExerciseType::A); 
+    let a = requestty::prompt_one(i.question)?;
+    let b = match a {
+        Answer::ListItem(li) => li.text, 
+        _ => "invalid".to_string() 
+    };
+    if b == i.solution {
+        eprintln!("Well done!")
+    } else {
+        eprintln!("Nope!")
+    }
+    eprintln!("{:?}",b);
     Ok(())
 }
