@@ -15,9 +15,9 @@ use shuffle::shuffler::Shuffler;
 pub enum Scale {
     Major(Key),
     Minor(Key),
-}
+} 
 impl Scale {
-    fn select_scale() -> Self {
+     fn select_scale() -> Self {
         let mut rng = rand::thread_rng();
         let rng_n: i32 = rng.gen();
         match &rng_n {
@@ -53,7 +53,7 @@ impl Scale {
                 Scale::Minor(Key::Bb) => vec!["Bb", "C", "Db", "Eb", "F", "Gb", "Ab"],
                 Scale::Minor(Key::F) => vec!["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
         }
-    }
+    } 
 
     fn get_shuffled_notes(&self) -> Vec<&str> {
         let mut rng = StepRng::new(1, 13);
@@ -63,7 +63,7 @@ impl Scale {
         notes
     }
 }
-impl fmt::Display for Scale {
+impl fmt::Display for Scale { 
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
                 Scale::Major(Key::C) => write!(f,"Major C"),   
@@ -90,10 +90,63 @@ impl fmt::Display for Scale {
                 Scale::Minor(Key::Eb) => write!(f,"Minor Eb"),   
                 Scale::Minor(Key::Bb) => write!(f,"Minor Bb"),   
                 Scale::Minor(Key::F) => write!(f,"Minor F"),   
+         }
+     }
+} 
+
+#[derive(Debug)]
+pub enum Degree {
+    One,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven
+}
+impl Degree {
+     fn select_degree() -> Self {
+        let degree: Self = rand::random();
+        degree
+    }
+    fn to_index(&self) -> usize {
+        match self {
+            Self::One => 0,
+            Self::Two => 1,
+            Self::Three => 2,
+            Self::Four => 3,
+            Self::Five => 4,
+            Self::Six => 5,
+            Self::Seven => 6
         }
     }
 }
-
+impl Distribution<Degree> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Degree {
+        match rng.gen_range(0..=6) {
+            0 => Degree::One,
+            2 => Degree::Two,
+            4 => Degree::Three,
+            5 => Degree::Four,
+            7 => Degree::Five,
+            9 => Degree::Six,
+            _ => Degree::Seven,
+        }
+    }
+}
+impl fmt::Display for Degree { 
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+                Degree::One => write!(f,"1st"),   
+                Degree::Two => write!(f,"2nd"),         
+                Degree::Three => write!(f,"3rd"),     
+                Degree::Four => write!(f,"4th"),   
+                Degree::Five => write!(f,"5th"),   
+                Degree::Six => write!(f,"6th"),   
+                Degree::Seven => write!(f,"7th"),   
+         }
+     }
+} 
 #[derive(Debug)]
 pub enum Key {
     C,
@@ -109,7 +162,7 @@ pub enum Key {
     Bb,
     F,
 }
-impl Key {
+impl Key  {
     fn new(key_name: &str) -> Option<Self> {
         match key_name {
             "C" => Some(Self::C),
@@ -148,7 +201,6 @@ impl Key {
         }
     }
 }
-
 impl Distribution<Key> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Key {
         match rng.gen_range(0..=11) {
@@ -172,10 +224,10 @@ pub enum ExerciseType {
     B,
     C,
     D,
-}
+} 
 impl Distribution<ExerciseType> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> ExerciseType {
-        match rng.gen_range(0..=3) {
+     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> ExerciseType {
+         match rng.gen_range(0..=3) {
             0 => ExerciseType::A,
             1 => ExerciseType::B,
             2 => ExerciseType::C,
@@ -191,7 +243,7 @@ impl ExerciseType {
 }
 
 struct Exercise<'a> {
-    //ex_type:ExerciseType,
+    ex_type:ExerciseType,
     question: Question<'a>,
     solution: String,
 }
@@ -216,19 +268,39 @@ impl Exercise<'_> {
         let mut scale_vec = vec![scale_shuffled.clone(),Scale::select_scale().get_shuffled_notes().join(","),Scale::select_scale().get_shuffled_notes().join(","),Scale::select_scale().get_shuffled_notes().join(",")];
         irs.shuffle(&mut scale_vec, &mut rng).unwrap();
 
-        let q =  Question::raw_select("")
+        let q =  Question::raw_select("type_a")
              .message(format!("What are the notes of the {} scale?", &scale.to_string()))
              .choices(scale_vec)
              .build();
 
         Self {
+            ex_type: ExerciseType::A,
             question:q,
             solution:scale_shuffled
         }
     }
-    //B. What note is the {Nth} of {Key}?
+    //B. What note is the {Nth} of {Scale}?
+    //- select a Scale
+    //- generate the scale wih notes
+    //- pick a note at random 
+    //- save the index used to pick the note at random
+    //
     fn generate_ex_b() -> Self {
-        todo!()
+        // todo!();
+        let scale = Scale::select_scale();
+        let scale_notes = scale.get_notes();
+        let degree = Degree::select_degree(); 
+        // let index = rand::thread_rng().gen_range(0..=6);
+        let index = degree.to_index();
+        let r_note = scale_notes[index];
+        let q = Question::input("type_b")
+            .message(format!("What note is the {} of {}",&degree.to_string(), &scale.to_string()))
+            .build();
+        Self {
+            ex_type: ExerciseType::B,
+            question:q,
+            solution:r_note.to_string()
+        }
     }
     //C. What degree of {Note} in reference to {Key}?
     fn generate_ex_c() -> Self {
@@ -247,22 +319,33 @@ impl Exercise<'_> {
         //     // if make sense make an enum out of Scale
         // };
     }
-}
-pub fn init() -> requestty::Result<()> {
-    // todo!();
-    let q = Question::input("test").message("Give me an imput").build();
-    // let _a = requestty::prompt_one(q)?;
-    let i = Exercise::new(ExerciseType::A); 
-    let a = requestty::prompt_one(i.question)?;
-    let b = match a {
-        Answer::ListItem(li) => li.text, 
+} 
+fn match_answer(a:Answer) -> String {
+    match a {
+        Answer::ListItem(a) => a.text, 
+        Answer::String(a) => a,
         _ => "invalid".to_string() 
-    };
-    if b == i.solution {
+    }
+}
+fn validate_answer(a:Answer,solution:String) {
+    let answer = match_answer(a);
+    eprintln!("a:{} s:{}",&answer,&solution);
+    if answer == solution {
         eprintln!("Well done!")
     } else {
         eprintln!("Nope!")
     }
-    eprintln!("{:?}",b);
+}
+pub fn init() -> requestty::Result<()> {
+    // todo!();
+    // let q = Question::input("test").message("Give me an imput").build();
+    // let _a = requestty::prompt_one(q)?;
+    let i = Exercise::new(ExerciseType::A); 
+    let a = requestty::prompt_one(i.question)?;
+    validate_answer(a, i.solution);
+    let i_two = Exercise::new(ExerciseType::B);
+    let b = requestty::prompt_one(i_two.question)?;
+    validate_answer(b, i_two.solution);
+    // eprintln!("{:?}",b);
     Ok(())
 }
